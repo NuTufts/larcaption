@@ -2,12 +2,15 @@
 #include <string>
 
 // ROOT headers
-#include "TH2D.h"
 #include "TCanvas.h"
+#include "TH2D.h"
+#include "TMarker.h"
 
 // larlite headers
 #include "DataFormat/mctrack.h"
 #include "DataFormat/mcshower.h"
+#include "LArUtil/LArProperties.h"
+#include "LArUtil/Geometry.h"
 
 // larcv headers
 #include "Base/PSet.h"
@@ -89,15 +92,28 @@ int main( int nargs, char** argv ) {
     // loop through the mc tracks and dump some information
     std::cout << "///// MCTrack objects ////////////////////////////////////////////" << std::endl;
     int itrack = 0;
+    std::vector<double> nu_vtx(3);
     for ( auto const& track : *mctrack_v ) {
       std::cout << "[Track " << itrack << "]" << std::endl;      
       std::cout << "  track unique ID: " << track.TrackID() << std::endl;
       std::cout << "  track mother ID: " << track.MotherTrackID() << std::endl;
       std::cout << "  particle ID: " << track.PdgCode() << std::endl;
       std::cout << "  creation process of particle track: " << track.Process() << std::endl;
-      std::cout << "  starting energy: " << track.Start().E() << std::endl;
-      std::cout << "  starting 3-momentum: (" << track.Start().Px() << "," << track.Start().Py() << "," << track.Start().Pz() << ")" << std::endl;
-      std::cout << "  starting 3-position: (" << track.Start().X() << "," << track.Start().Y() << "," << track.Start().Z() << ")" << std::endl;
+      std::cout << "  origin: " << track.Origin() << std::endl;
+      std::cout << "  starting energy: " << track.Start().E() <<  " MeV" << std::endl;
+      std::cout << "  starting 3-momentum: (" << track.Start().Px() << "," << track.Start().Py() << "," << track.Start().Pz() << ") MeV/c" << std::endl;
+      std::cout << "  starting 3-position: (" << track.Start().X() << "," << track.Start().Y() << "," << track.Start().Z() << ") cm" << std::endl;
+
+      if ( track.Origin()==1 ) {
+	// neutrino
+	if ( track.MotherTrackID()==track.TrackID() ) {
+	  // primary from neutrino interaction
+	  nu_vtx[0] = track.Start().X();
+	  nu_vtx[1] = track.Start().Y();
+	  nu_vtx[2] = track.Start().Z();
+	}
+      }
+      
       itrack++;
     }
 
@@ -109,10 +125,11 @@ int main( int nargs, char** argv ) {
       std::cout << "  shower unique ID: " << shower.TrackID() << std::endl;
       std::cout << "  shower mother ID: " << shower.MotherTrackID() << std::endl;
       std::cout << "  particle ID: " << shower.PdgCode() << std::endl;
+      std::cout << "  origin: " << shower.Origin() << std::endl;      
       std::cout << "  creation process of particle shower: " << shower.Process() << std::endl;
-      std::cout << "  starting energy: " << shower.Start().E() << std::endl;
-      std::cout << "  starting 3-momentum: (" << shower.Start().Px() << "," << shower.Start().Py() << "," << shower.Start().Pz() << ")" << std::endl;
-      std::cout << "  starting 3-position: (" << shower.Start().X() << "," << shower.Start().Y() << "," << shower.Start().Z() << ")" << std::endl;
+      std::cout << "  starting energy: " << shower.Start().E() << " MeV" << std::endl;
+      std::cout << "  starting 3-momentum: (" << shower.Start().Px() << "," << shower.Start().Py() << "," << shower.Start().Pz() << ")  MeV/c" << std::endl;
+      std::cout << "  starting 3-position: (" << shower.Start().X() << "," << shower.Start().Y() << "," << shower.Start().Z() << ") cm" << std::endl;
       ishower++;
     }
 
@@ -139,13 +156,43 @@ int main( int nargs, char** argv ) {
 	  }
 	}
 	// we set the bounds of the values we will draw (to help contrast so that really big pixels do not dominate image)
-	hist2d.SetMinimum(0);
+	hist2d.SetMinimum(10);
 	hist2d.SetMaximum(255); 
 	hist2d.Draw("COLZ"); // use color scale for Z
+
+	// we mark the location of the neutrino interaction
+
+	// we translate vertex into image coordinates
+	const larutil::Geometry*      geo  = larutil::Geometry::GetME();
+	const larutil::LArProperties* larp = larutil::LArProperties::GetME();	
+	int wireno = geo->NearestWire( nu_vtx, plane );
+
+	// formula for translating x-position into time
+	int tick = 3200 + nu_vtx[0]/(larp->DriftVelocity()*0.5);
+
+	std::cout << "(" << plane << "," << wireno << "," << tick << ")" << std::endl;
+	
+	TMarker* pmarker = NULL;
+	if ( wireno>img.meta().min_x() && wireno<img.meta().max_x()
+	     && tick>img.meta().min_y() && tick<img.meta().max_y() ) {
+	  // translate wire into col and tick into row
+	  //int wirecol = img.meta().col( wireno );
+	  //int tickrow = img.meta().row( tick );
+	  
+	  pmarker = new TMarker( wireno, tick, 20 );
+	  //pmarker = new TMarker( wirecol, tickrow, 20 );
+	  pmarker->SetMarkerColor(kRed);
+	  pmarker->SetMarkerSize(1);
+	  pmarker->Draw();
+	}
+	
 	char zname[100];
 	sprintf( zname, "img_entry%03d_plane%d.png", ientry, plane );
 	canvas.Draw();
 	canvas.SaveAs( zname );
+	
+	if ( pmarker )
+	  delete pmarker;
       }
     }
     
