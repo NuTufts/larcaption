@@ -9,32 +9,32 @@ I am going to assume Meitner. It will have a copy of ROOT, which should be the o
 * go to some directory where you want to clone the repository.  I am going to assume `~/working/larbys`
 * clone the repository
 
-    git clone https://github.com/NuTufts/larcaption.git
+      git clone https://github.com/NuTufts/larcaption.git
 
 * initiate the submodules and pull their code. (what is a submodule? I often refer to this [page](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/) for descriptions and code snippets.)
 
-    git submodule init
-    git submodule update
+      git submodule init
+      git submodule update
 
 * configure your bash shell with the right environment variables.  you need to do this every time you work with this code in a new shell instance.
 
-    source configure.sh
+      source configure.sh
 
 
 * build the code. you only need to do this when you've made a change (or updated) the submodule repositories (larcv, larlite, larlitecv).
 
-    source build.sh
+      source build.sh
 
 * go to the larcaption code folder
 
 
-    cd larcaption
+      cd larcaption
 
 
 * build the sandbox program
 
 
-    make
+      make
 
 
 that's it for building. you should see an executable binary `dump_mctruth` in the larcaption folder.
