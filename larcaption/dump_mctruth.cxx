@@ -47,19 +47,19 @@ int main( int nargs, char** argv ) {
   std::string image_treename    = config.get<std::string>("ImageTreeName");
   // do we also make an image of the data
   bool dump_images              = config.get<bool>("DumpImages");
+
+  std::cout << "LArlite (mc truth file): " << larlite_inputfile << std::endl;
+  std::cout << "LArCV   (image file): " << larcv_inputfile << std::endl;
   
   // Configure Data coordinator
   // --------------------------
   larlitecv::DataCoordinator dataco;
 
-
   // larlite
   dataco.add_inputfile( larlite_inputfile, "larlite" );
   // larcv
-  dataco.add_inputfile( larcv_inputfile, "larcv" );
+  dataco.add_inputfile( larcv_inputfile,    "larcv" );
 
-  // configure the data coordinator
-  dataco.configure( cfg_file, "StorageManager", "IOManager", "DumpMCTruth" );
   
   // initialize
   dataco.initialize();
