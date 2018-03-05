@@ -102,7 +102,7 @@ Go ahead and edit `dump_mctruth.cxx`. When you want to build, just type make in 
 * understand the data products being taken from the file: `mctrack`, `mcshower`, `image2d`. The headers for these objects can be found in
   * larlite/core/DataFormat: mctrack, mcshower
   * larcv/core/DataFormat: image2d
-* make sure only neutrino particles are being dumped (use the origin flag in the mctrack/mcshower data products)
+* make sure only neutrino particles are being dumped (use the origin flag = 2 in the mctrack/mcshower data products)
 * note: if you want to know what the pdg codes are, refer [here](http://home.fnal.gov/~mrenna/lutp0613man2/node44.html)
 * store the neutrino particles into a graph
 * convert graph into a caption
