@@ -1,5 +1,6 @@
 .pylardcache
 *.png
 dump_mctruth
+main
 *.root
 *.txt
