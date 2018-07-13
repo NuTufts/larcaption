@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 .pylardcache
 *.png
 dump_mctruth
+main
 *.root
 *.txt
+=======
+*~
+>>>>>>> a60ed89e49568002d6e6079b7c86c9ac2e8d2444
