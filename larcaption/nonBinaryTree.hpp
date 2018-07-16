@@ -1,7 +1,7 @@
 /*
 	Header file for class to build a non-binary tree from truth information such
 	that it can be traversed to create sentences describing interactions.
-*/
+*/  
 
 #include <iostream>
 #include <string>
@@ -37,7 +37,7 @@ class nonBinaryTree
 
 		void printChildren(int trackID); 
 
-		string publicBreadthTrav();
+		string publicBreadthTrav();  
 
 		void particleNumber(int trackID);
 
@@ -49,12 +49,16 @@ class nonBinaryTree
 
 		float getRestMass(int pdgCode);
 
+		vector <int> getCompCap();
+
+		void printCompCap();
+
 	private:  
         
 		struct treeNode {
 			float trackEnergy; // in MeV
 			int trackID;  
-			string particleName;
+			string particleName;  
 			int particleID;
 
 			int motherID; // ask if unique
@@ -72,6 +76,7 @@ class nonBinaryTree
 		treeNode root;       
 		treeNode *searchedNode;
 		bool foundNode;  
+		vector <int> compCap;
   
 		// vector of the nodes that were printed out of order 
 		vector <treeNode> lostNodes;

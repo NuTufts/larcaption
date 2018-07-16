@@ -74,8 +74,8 @@ int main( int nargs, char** argv )
   	int nentries = dataco.get_nentries("larcv");
   	//nentries = 20; // to shorten the loop  
 
-    //vector <string> depthCaptions;
     vector <string> breadthCaptions;
+    vector <vector <int>> machCaps;
 
     int motherID_neu = 1;
 
@@ -121,15 +121,15 @@ int main( int nargs, char** argv )
     	{
         	if ( track.Origin()==1 )
         	{
-      			std::cout << "[Track " << itrack << "]" << std::endl;      
-      			std::cout << "  track unique ID: " << track.TrackID() << std::endl;
-      			std::cout << "  track mother ID: " << track.MotherTrackID() << std::endl;
-      			std::cout << "  particle ID: " << track.PdgCode() << std::endl;
-      			std::cout << "  creation process of particle track: " << track.Process() << std::endl;
-      			std::cout << "  origin: " << track.Origin() << std::endl;
-      			std::cout << "  starting energy: " << track.Start().E() <<  " MeV" << std::endl;
-      			std::cout << "  starting 3-momentum: (" << track.Start().Px() << "," << track.Start().Py() << "," << track.Start().Pz() << ") MeV/c" << std::endl;
-      			std::cout << "  starting 3-position: (" << track.Start().X() << "," << track.Start().Y() << "," << track.Start().Z() << ") cm" << std::endl;
+      			  std::cout << "[Track " << itrack << "]" << std::endl;      
+      			  std::cout << "  track unique ID: " << track.TrackID() << std::endl;
+      			  std::cout << "  track mother ID: " << track.MotherTrackID() << std::endl;
+      			  std::cout << "  particle ID: " << track.PdgCode() << std::endl;
+      			  std::cout << "  creation process of particle track: " << track.Process() << std::endl;
+      			  std::cout << "  origin: " << track.Origin() << std::endl;
+      			  std::cout << "  starting energy: " << track.Start().E() <<  " MeV" << std::endl;
+      			  std::cout << "  starting 3-momentum: (" << track.Start().Px() << "," << track.Start().Py() << "," << track.Start().Pz() << ") MeV/c" << std::endl;
+      			  std::cout << "  starting 3-position: (" << track.Start().X() << "," << track.Start().Y() << "," << track.Start().Z() << ") cm" << std::endl;
   
           		string particleName = newTree->pdgToString(track.PdgCode());
          
@@ -142,7 +142,8 @@ int main( int nargs, char** argv )
 
            		if ((abs(track.PdgCode()) == 11 && KE < 10.0) || (abs(track.PdgCode()) == 22 && KE < 10.0) ||
            			(abs(track.PdgCode()) == 13 && KE < 30.0) || (abs(track.PdgCode()) == 2212 && KE < 60.0) ||
-           			(abs(track.PdgCode()) == 111 && KE < 30.0) || (abs(track.PdgCode()) == 211 && KE < 30.0))
+           			(abs(track.PdgCode()) == 111 && KE < 30.0) || (abs(track.PdgCode()) == 211 && KE < 30.0) ||
+                (abs(track.PdgCode()) == 2112 && KE < 60.0))
            		{
            			removedParticles.push_back(track.TrackID());
            			// skip certain particles by specific energies
@@ -153,18 +154,21 @@ int main( int nargs, char** argv )
            			removedParticles.push_back(track.TrackID());
            	 		// skip all particles under 10 MeV
            		}
-  
-           		else
+    
+           		else  
            		{
            			if (track.MotherPdgCode() == 2112)
             		{
+                    newTree->addNode(motherID_neu,track.TrackID(),track.Start().E(),particleName,track.PdgCode());
+                    //removedParticles.push_back(track.TrackID());
+                    // add to root 
               			// skip
             		}
 
             		else if (findID(track.MotherTrackID(),removedParticles) == true)
             		{
             			// skip
-            		}
+            		}  
 
             		else
             		{
@@ -184,15 +188,15 @@ int main( int nargs, char** argv )
 	  			  		// neutrino
 				    	if ( track.MotherTrackID()==track.TrackID() ) 
 				    	{
-	  				   		// primary from neutrino interaction
+	  				   		// primary from neutrino interaction  
 	  				   		nu_vtx[0] = track.Start().X();
 	  				   		nu_vtx[1] = track.Start().Y();
 	  				   		nu_vtx[2] = track.Start().Z();
 	 			    	}
-      				}
-          		}
-          	}
-      		itrack++;
+      			}
+          }
+        }
+      	itrack++;
     	}
   
   		// KE = total E - rest mass 
@@ -264,10 +268,12 @@ int main( int nargs, char** argv )
 
       	newTree->addLeftoverNodes();
 
-       	// inside outer loop
+       	// inside outer loop    
        	string newCap = newTree->publicBreadthTrav();
        	cout << newCap << endl;
        	breadthCaptions.push_back(newCap);
+        machCaps.push_back(newTree->getCompCap());
+        newTree->printCompCap();
        	const char* cap = newCap.c_str();
 
     	// dump MicroBooNE LArTPC data to image

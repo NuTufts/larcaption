@@ -10,10 +10,12 @@ class particleIDMap
 {    
 	public:
   
-  		// default constructor 
-		particleIDMap();
+  		//string getString(int num);
+  		int getNum(string term);
 
-		void getMap(); 
+  		static particleIDMap* getInstance();
+
+		//static const A& get();  
 
 	private:  
 
@@ -21,9 +23,32 @@ class particleIDMap
 		int numKey;
 
 		void setLeptons();
-		void setBaryons();
+		void setBaryons();  
 		void setKaons();
 		void setOthers();
+  
+		// default constructor   
+		particleIDMap();
+		~particleIDMap();
+
+		static particleIDMap* mapInstance;
+
+		/*
+		A():
+		~A();
+		Static A* -global;
+
+		// in cpp
+		A* A::-g instance = NULL;
+		
+		//for get()
+		const A& A::get()
+		{
+			if (A::_ginstance == NULL)
+				A::_ginstance = new A();
+			return *(A::ginstance);
+		} */
+
 };  
 
 #endif  

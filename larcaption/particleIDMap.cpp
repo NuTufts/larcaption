@@ -6,15 +6,20 @@
 
 using namespace std;  
 
-
+particleIDMap* particleIDMap::mapInstance = NULL;
+  
 particleIDMap::particleIDMap()  
 {  
 	numKey = 0;
 	particleNum.insert(pair <string, int> ("END",numKey));
 	numKey++;
+	particleNum.insert(pair <string, int> ("root",numKey));
+	numKey++;
+	particleNum.insert(pair <string, int> ("neutrino",numKey));
+	numKey++;
 	setLeptons(); 
 	setBaryons();  
-	setKaons();
+	setKaons();  
 	setOthers();
 }  
 
@@ -262,15 +267,29 @@ void particleIDMap::setKaons()
 	}
 }
 
-void getMap()
+particleIDMap* particleIDMap::getInstance()
 {
+	if (mapInstance == NULL)
+	{
+		mapInstance = new particleIDMap();
+	}
 
+	return mapInstance;
 }
 
+/*
+string particleIDMap::getString(int num)
+{
+	string stringKey = particleNum.find(num)->first;
+	return stringKey;
+}
+*/
 
-
-
-
+int particleIDMap::getNum(string term)
+{ 
+	int numKey = particleNum.find(term)->second;
+	return numKey;
+}
 
 
 

@@ -10,9 +10,9 @@
 #include <string>
 #include <queue>
 #include "nonBinaryTree.hpp"
+#include "particleIDMap.hpp"
 using namespace std;
 
-// make a map
 
 // default constructor
 nonBinaryTree::nonBinaryTree()
@@ -242,13 +242,26 @@ void nonBinaryTree::addLeftoverNodes()
 
 		search(motherID, &root);
 
-		if (foundNode == false)
+		if (foundNode == false)    
 		{	
-			cout << "Couldn't place particle with trackID " << lostNodes[i].trackID << endl;
-		}
+			lostNodes[i].motherID = 1;
+			lostNodes[i].generation = setParticleGen(root.generation);
+			treeSize++;
+			particleCount(lostNodes[i].particleID);
+			root.children.push_back(lostNodes[i]);
+			root.numChildren = root.numChildren + 1;
+			lostNodes[i].mother = &root;
 
+			// sort children in energy order
+			int size = root.numChildren;
+			vector <nonBinaryTree::treeNode> temp = sortChildren(root.children, size);
+			root.children = temp;
+
+			cout << "placed at root " << lostNodes[i].trackID << endl;
+		}
+  
 		else    
-		{	
+		{	 
 			// define particle generation
 			char newChildGen = setParticleGen(searchedNode->generation); 
 			lostNodes[i].generation = newChildGen;
@@ -260,14 +273,6 @@ void nonBinaryTree::addLeftoverNodes()
 			int partID = lostNodes[i].particleID;
 
 			particleCount(partID);
-
-			/*
-			if (partID >= 0)
-				lostNodes[i].numParticle = countArray[partID];
-
-			else
-				lostNodes[i].numParticle = antiCountArray[(partID*-1)];
-			*/
 
 			// add new node to the back of the children array
 			searchedNode->children.push_back(lostNodes[i]);
@@ -464,6 +469,7 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 	string caption = "";
 	string currCap = "";
 	int numVisited = 0;
+	particleIDMap* map = particleIDMap::getInstance();
 
 	if (treeSize == 1)  
 		return caption;
@@ -484,6 +490,9 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 			currCap = "root " + temp->particleName + "-" + temp->generation + to_string(temp->numParticle) + ", ";
 			caption = currCap;
 			cout << currCap << endl;
+
+			compCap.push_back(map->getNum("root"));
+			compCap.push_back(map->getNum(temp->particleName + "-" + temp->generation + to_string(temp->numParticle)));
 		}  
   
 		else
@@ -504,7 +513,13 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 				currCap = motherName + "-" + motherGen + to_string(motherNum) + " created " + temp->particleName + "-" + temp->generation + to_string(temp->numParticle) + ", ";
 				caption = caption + currCap;
 			}
-			
+
+			// add mother key to vector
+			compCap.push_back(map->getNum(motherName + "-" + motherGen + to_string(motherNum)));
+
+			// add daughter key to vector
+			compCap.push_back(map->getNum(temp->particleName + "-" + temp->generation + to_string(temp->numParticle)));
+	
 			cout << currCap << endl;
 		}
   
@@ -552,7 +567,7 @@ string nonBinaryTree::pdgToString(int pdgCode)
 		{
 			string name = "anti-" + names[i];  
 			return name;
-		}
+		}  
 	}
 
 	// if pdg code not found
@@ -577,6 +592,18 @@ float nonBinaryTree::getRestMass(int pdgCode)
 	return notFound;
 }
 
+vector <int> nonBinaryTree::getCompCap()
+{
+	return compCap;
+}
+
+void nonBinaryTree::printCompCap()
+{
+	for (int i = 0; i < compCap.size(); i++)
+	{
+		cout << compCap[i] << " ";
+	}
+}
 
 
 
