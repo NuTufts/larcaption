@@ -7,7 +7,7 @@
 // ROOT headers
 #include "TCanvas.h"
 #include "TH2D.h"
-#include "TMarker.h"
+#include "TMarker.h"  
 
 // larlite headers  
 #include "DataFormat/mctrack.h"
@@ -16,11 +16,11 @@
 #include "LArUtil/Geometry.h"    
 
 // larcv headers
-#include "Base/PSet.h"
+#include "Base/PSet.h" 
 #include "Base/LArCVBaseUtilFunc.h"
 #include "DataFormat/ImageMeta.h"
 #include "DataFormat/Image2D.h"
-#include "DataFormat/EventImage2D.h"
+#include "DataFormat/EventImage2D.h"  
 
 // graph building class header
 #include "nonBinaryTree.hpp"
@@ -72,7 +72,7 @@ int main( int nargs, char** argv )
 
   	// Start Event Loop
   	int nentries = dataco.get_nentries("larcv");
-  	//nentries = 20; // to shorten the loop  
+  	//nentries = 3; // to shorten the loop  
 
     vector <string> breadthCaptions;
     vector <vector <int>> machCaps;
@@ -313,10 +313,10 @@ int main( int nargs, char** argv )
 				// we translate vertex into image coordinates
 				const larutil::Geometry*      geo  = larutil::Geometry::GetME();
 				const larutil::LArProperties* larp = larutil::LArProperties::GetME();	
-         		TMarker* pmarker = NULL;
+        TMarker* pmarker = NULL;
 
-           	 	try 
-            	{
+        try 
+        {
 					int wireno = geo->NearestWire( nu_vtx, plane );
 
 					// formula for translating x-position into time
@@ -327,7 +327,7 @@ int main( int nargs, char** argv )
 				      
 					if ( wireno>img.meta().min_x() && wireno<img.meta().max_x()
 	    	 			&& tick>img.meta().min_y() && tick<img.meta().max_y() ) 
-              		{
+            {
 	  					// translate wire into col and tick into row
 	  					//int wirecol = img.meta().col( wireno );
 	  					//int tickrow = img.meta().row( tick );
@@ -337,13 +337,14 @@ int main( int nargs, char** argv )
 	  					pmarker->SetMarkerColor(kRed);
 	  					pmarker->SetMarkerSize(1);
 	  					pmarker->Draw();
-					}
-           		}
+					  }
+          }
 
-            	catch ( std::exception& e ) 
-            	{
-
-            	}
+        catch ( std::exception& e ) 
+        {
+          delete pmarker;
+          pmarker = NULL;
+        }
 
 				char zname[100];
 				sprintf( zname, "img_entry%03d_plane%d.png", ientry, plane );

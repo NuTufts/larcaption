@@ -26,14 +26,16 @@ nonBinaryTree::nonBinaryTree()
 	root.numParticle = 1;
 	root.particleID = 1;
 	searchedNode = NULL;
-	countArraySize = 3000;
-	foundNode = false; 
-	antiCountArraySize = 3000;  
-	particleCount(root.trackID);   
-	   
+	//countArraySize = 3000;
+	foundNode = false;
+	root.mother = NULL;
+	//antiCountArraySize = 3000;  
+	//particleCount(root.trackID);
+
 	//depthCap = NULL;
 	//depthCap = "";
 
+	/*
 	for (int i = 0; i < countArraySize; i++)
 	{
 		countArray[i] = 0;
@@ -43,6 +45,7 @@ nonBinaryTree::nonBinaryTree()
 	{
 		antiCountArray[i] = 0;
 	}
+	*/
 }  
 
 // parametrized constructor
@@ -54,18 +57,21 @@ nonBinaryTree::nonBinaryTree(float rootEnergy, int rootTrackID)
 	root.generation = 'R';
 	root.motherID = 1;
 	treeSize = 1;
+	root.mother = NULL;
 	root.numChildren = 0;
 	root.numParticle = 1;
 	root.particleID = 1;
 	searchedNode = NULL;
-	countArraySize = 3000;
+	//countArraySize = 3000;
 	foundNode = false;
-	antiCountArraySize = 3000;
-	particleCount(root.particleID);
+	//antiCountArraySize = 3000;
+	//particleCount(root.particleID);
+
 
 	//depthCap = NULL;
 	//depthCap = "";
 
+	/*
 	for (int i = 0; i < countArraySize; i++)
 	{
 		countArray[i] = 0;
@@ -74,15 +80,27 @@ nonBinaryTree::nonBinaryTree(float rootEnergy, int rootTrackID)
 	for (int i = 0; i < antiCountArraySize; i++)
 	{
 		antiCountArray[i] = 0;
-	}
+	}  
+	*/
 }
 
-// destructor
-nonBinaryTree::~nonBinaryTree()
+// destructor  
+nonBinaryTree::~nonBinaryTree()  
 {
+	//delete [] countArray;
+	//countArray = NULL;
+
+	//delete [] antiCountArray;
+	//antiCountArray = NULL;
+
+	//delete searchedNode;
+	//searchedNode = NULL;
+
 	//delete depthCap;
+	//depthCap = NULL;
 }
 
+/*
 // adjusts the particle count
 void nonBinaryTree::particleCount(int particleID)
 {
@@ -105,6 +123,9 @@ void nonBinaryTree::particleCount(int particleID)
 
 			countArray = temp;
 			countArraySize = particleID;
+
+			delete [] temp;
+			temp = NULL;
 		} 
 		countArray[particleID]++;
 	}
@@ -127,11 +148,15 @@ void nonBinaryTree::particleCount(int particleID)
 			}
 
 			antiCountArray = temp;
-			countArraySize = absValPID;	
+			countArraySize = absValPID;
+
+			delete [] temp;
+			temp = NULL;	
 		}
 		antiCountArray[absValPID]++;
 	}
 }
+*/
 
 // returns whether or not the child is a leaf (has no children)
 bool nonBinaryTree::isLeaf(treeNode *currNode)
@@ -186,8 +211,7 @@ void nonBinaryTree::addNode(int motherID, int trackID, float energy, string part
 	// after the search function call the correct mother node is in data member searchedNode
 	search(motherID, &root);
 
-
-	// create new node
+	// create new node 
 	if (foundNode == false)  
 	{
 		nonBinaryTree::treeNode child = createNode(energy, trackID, motherID, particleName, particleID);
@@ -209,16 +233,8 @@ void nonBinaryTree::addNode(int motherID, int trackID, float energy, string part
 		treeSize++;  
 	
 		// increment particle count
-		particleCount(particleID);  
-  
-  		/*
-  		if (particleID >= 0)
-			child.numParticle = countArray[particleID];
-
-		else
-			child.numParticle = antiCountArray[(particleID*-1)];
-		*/
-
+		//particleCount(particleID);  
+ 
 		// add new node to the back of the children array
 		searchedNode->children.push_back(child);
 		searchedNode->numChildren = searchedNode->numChildren + 1;
@@ -243,11 +259,11 @@ void nonBinaryTree::addLeftoverNodes()
 		search(motherID, &root);
 
 		if (foundNode == false)    
-		{	
+		{	  
 			lostNodes[i].motherID = 1;
 			lostNodes[i].generation = setParticleGen(root.generation);
 			treeSize++;
-			particleCount(lostNodes[i].particleID);
+			//particleCount(lostNodes[i].particleID);
 			root.children.push_back(lostNodes[i]);
 			root.numChildren = root.numChildren + 1;
 			lostNodes[i].mother = &root;
@@ -270,9 +286,9 @@ void nonBinaryTree::addLeftoverNodes()
 			treeSize++;
 	
 			// increment particle count
-			int partID = lostNodes[i].particleID;
+			//int partID = lostNodes[i].particleID;
 
-			particleCount(partID);
+			//particleCount(partID);
 
 			// add new node to the back of the children array
 			searchedNode->children.push_back(lostNodes[i]);
@@ -292,35 +308,22 @@ void nonBinaryTree::addLeftoverNodes()
 // be used due to the time complexity)  
 vector <nonBinaryTree::treeNode> nonBinaryTree::sortChildren(vector <treeNode> children, int len)
 {
-	int j;
+	int j;  
 	nonBinaryTree::treeNode temp;
 
-	/*
-	if (len < 2)
+	for (int i = 0; i < children.size(); i++)
 	{
-		children[0].numParticle = 1;
-		//return children;      
-	}
+		j = i;
 
-	else
-	{
-	*/
-		for (int i = 0; i < children.size(); i++)
+		// compare energies but change placement of nodes
+		while (j > 0 && (children[j].trackEnergy < children[j-1].trackEnergy))
 		{
-			j = i;
-
-			// compare energies but change placement of nodes
-			while (j > 0 && (children[j].trackEnergy < children[j-1].trackEnergy))
-			{
-				temp = children[j];  
-				children[j] = children[j-1];
-				//children[j].numParticle = j;
-				children[j-1] = temp;
-				//children[j-1].numParticle = j + 1;
-				j--;
-			}  
-		}
-	//}
+			temp = children[j];  
+			children[j] = children[j-1];
+			children[j-1] = temp;
+			j--;
+		}  
+	}
 
 	for (int k = 0; k < children.size(); k++)
 	{
@@ -341,12 +344,13 @@ nonBinaryTree::treeNode nonBinaryTree::createNode(float energy, int trackID, int
 	newNode.numChildren = 0;
 	newNode.particleID = particleID;
 
-	return newNode;
+	return newNode; 
 }
 
 // save node
 // loop over children
-// return (if node isLeaf)   
+// return (if node isLeaf)
+/*   
 void nonBinaryTree::depthTrav(treeNode *currNode)
 {
 	if (isLeaf(currNode))
@@ -373,6 +377,7 @@ void nonBinaryTree::depthTrav(treeNode *currNode)
 		return;
 	}  
 } 
+*/
 
 string nonBinaryTree::vecToString(vector <string> cap)
 {
@@ -387,6 +392,7 @@ string nonBinaryTree::vecToString(vector <string> cap)
 	return returnCap;
 } 
   
+/*
 // public member function to complete the depth trav
 string nonBinaryTree::publicDepthTrav()
 {
@@ -397,6 +403,7 @@ string nonBinaryTree::publicDepthTrav()
 
 	return newCap;
 }
+*/
  
 void nonBinaryTree::getTreeSize()
 {  
@@ -474,16 +481,16 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 	if (treeSize == 1)  
 		return caption;
 
-	queue <nonBinaryTree::treeNode *> q;
+	queue <nonBinaryTree::treeNode *> q;  
 	q.push(rootNode);
-
+  
 	while (q.empty() == false)
 	{
 		foundNode = false;
 		searchedNode = NULL;
 
 		nonBinaryTree::treeNode *temp = q.front();
-  		numVisited++;
+  		numVisited++; 
 
 		if (temp->generation == 'R')
 		{
@@ -506,20 +513,28 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 			{
 				currCap = motherName + "-" + motherGen + to_string(motherNum) + " created " + temp->particleName + "-" + temp->generation + to_string(temp->numParticle) + " END";
 				caption = caption + currCap;
-			}
 
-			else
+				// add mother key to vector
+				compCap.push_back(map->getNum(motherName + "-" + motherGen + to_string(motherNum)));
+
+				// add daughter key to vector
+				compCap.push_back(map->getNum(temp->particleName + "-" + temp->generation + to_string(temp->numParticle)));
+	
+				compCap.push_back(map->getNum("END"));
+			}  
+
+			else   
 			{
 				currCap = motherName + "-" + motherGen + to_string(motherNum) + " created " + temp->particleName + "-" + temp->generation + to_string(temp->numParticle) + ", ";
 				caption = caption + currCap;
+
+				// add mother key to vector
+				compCap.push_back(map->getNum(motherName + "-" + motherGen + to_string(motherNum)));
+
+				// add daughter key to vector
+				compCap.push_back(map->getNum(temp->particleName + "-" + temp->generation + to_string(temp->numParticle)));
 			}
 
-			// add mother key to vector
-			compCap.push_back(map->getNum(motherName + "-" + motherGen + to_string(motherNum)));
-
-			// add daughter key to vector
-			compCap.push_back(map->getNum(temp->particleName + "-" + temp->generation + to_string(temp->numParticle)));
-	
 			cout << currCap << endl;
 		}
   
@@ -529,9 +544,10 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 		for (int i = 0; i < temp->numChildren; i++)
 		{
 			q.push(&(temp->children[i]));
-		}
-	}
+		}  
+	}  
 
+	map->resetInstance();
 	return caption;
 }
  
@@ -539,16 +555,18 @@ string nonBinaryTree::breadthTrav(treeNode *rootNode)
 string nonBinaryTree::publicBreadthTrav()
 {
 	string breadthCap = breadthTrav(&root);
-
+  
 	return breadthCap;
 }  
 
+/*
 // print number of instances of a given particle
 void nonBinaryTree::particleNumber(int particleID)
 {
 	cout << "There are " << countArray[particleID] <<
 		" type " << particleID << " particles" << endl;
 } 
+*/
 
 // converts pdg code to string of particle name
 // works only for neutron, proton, pions, kaons, and leptons

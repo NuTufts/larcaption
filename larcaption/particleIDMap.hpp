@@ -10,17 +10,18 @@ class particleIDMap
 {    
 	public:
   
-  		//string getString(int num);
+  		// string getString(int num);
   		int getNum(string term);
 
   		static particleIDMap* getInstance();
+  		void resetInstance();
 
 		//static const A& get();  
 
 	private:  
-
+ 
 		map <string, int> particleNum;
-		int numKey;
+		int numKey = 0;
 
 		void setLeptons();
 		void setBaryons();  
